@@ -10,20 +10,30 @@ from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 
 # Constants for  prompt messages templates
-SYSTEM_MESSAGE_TEMPLATE = "Considere a conversa, o contexto e a pergunta dada para dar uma resposta. Caso você não saiba uma resposta, fale 'Me desculpe, mas não tenho uma resposta para esta pergunta' em vez de tentar inventar algo.\n----\nConversa:\n{chat_history}\n----\nContexto:\n{context}\n----\n"
-HUMAN_MESSAGE_TEMPLATE = "Pergunta:\n{question}"
+SYSTEM_MESSAGE_TEMPLATE = """Você é uma IA assistente cuja função é responder dúvidas sobre o Vestibular da Unicamp 2024 a partir da publicação da Resolução GR-031/2023, de 13/07/2023 que \"Dispõe sobre o Vestibular Unicamp 2024 para vagas no ensino de Graduação\".
+Considere a conversa, o contexto e a pergunta dada para dar uma resposta. Caso você não saiba uma resposta, fale 'Me desculpe, mas não tenho uma resposta para esta pergunta' em vez de tentar inventar algo.
+----
+Conversa:
+{chat_history}
+----
+Contexto:
+{context}
+----
+"""
+HUMAN_MESSAGE_TEMPLATE = """Pergunta:
+{question}"""
 
 # ComvestinhoChatBot Class
 class ComvestinhoChatBot():
     # Inits ComvestinhoChatBot
-    def __init__(self, chat_history=[]):
+    def __init__(self):
         # Sets model names
-        self.chat_model_name = 'gpt-3.5-turbo'
-        self.embeddings_model_name = 'text-embedding-ada-002'
+        self.chat_model_name = "gpt-3.5-turbo"
+        self.embeddings_model_name = "text-embedding-ada-002"
 
         # Sets default values
-        self.chunk_size = 750
-        self.chunk_overlap = 10
+        self.chunk_size = 1000
+        self.chunk_overlap = 0
         self.temperature = 0
 
         # Creates embeddings and chat models
@@ -36,15 +46,12 @@ class ComvestinhoChatBot():
             chunk_size=self.chunk_size,
         )
 
-        # Sets chat history which is a list of tuples of strings as (human_question, ai_answer)
-        self.chat_history = chat_history
-
         # Creates document vectostore and retriever
         doc_url = "https://www.pg.unicamp.br/norma/31594/0"
         docs = self.__load_webpage(doc_url)
         docs_splits = self.__split_documents(docs)
         self.vectordb = self.__create_doc_vectorstore(docs_splits)
-        self.retriever = self.vectordb.as_retriever()
+        self.retriever = self.vectordb.as_retriever(search_type="similarity", search_kwargs={"k":4})
         
         # Defines prompt template
         self.prompt_template = ChatPromptTemplate.from_messages([
@@ -53,18 +60,22 @@ class ComvestinhoChatBot():
         ])
 
     # Augments prompt adding chat history and context to question
-    def __create_augmented_prompt(self, question):
-        docs = self.retriever.get_relevant_documents(query=question)
+    def __create_augmented_prompt(self, question, chat_history, related_docs):       
+        # Join all documents to a string
+        docs_str = '\n'.join([doc.page_content for doc in related_docs])
         
-        docs_formatted = '\n'.join([doc.page_content for doc in docs])
-        chat_history_formatted = '\n'.join(self.chat_history)
+        # Format chat history and join all messages to a string
+        role_map = { "user": "Usuário", "assistant": "Sistema"}
+        chat_history_formatted = [ f"{role_map[message['role']]}: {message['content']}" for message in chat_history ]
+        chat_history_str = '\n'.join(chat_history_formatted)
         
+        # Create prompt template with input and output languages as Portuguese
         prompt = self.prompt_template.format_messages(
             input_language="Portuguese", 
             output_language="Portuguese", 
             question=question,
-            context=docs_formatted,
-            chat_history=chat_history_formatted
+            context=docs_str,
+            chat_history=chat_history_str
         )
         return prompt
 
@@ -96,9 +107,8 @@ class ComvestinhoChatBot():
         return vectordb
 
     # Asks the ComvestinhoChatBot a question, saves in chat history and returns the answer
-    def ask(self, question):
-        prompt = self.__create_augmented_prompt(question)
+    def ask(self, question, chat_history):
+        related_docs = self.retriever.get_relevant_documents(query=question)
+        prompt = self.__create_augmented_prompt(question, chat_history, related_docs)
         answer = self.chat_model(prompt)
-        self.chat_history.append(f"Usuário: {question}")
-        self.chat_history.append(f"Sistema: {answer}")
         return answer.content

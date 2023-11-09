@@ -1,48 +1,54 @@
+# =========
+#  Imports
+# =========
+
 # Fix Chroma and SQLite3 issue with StreamLit
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-# -------------------------------------------
 
 import streamlit as st
 import dotenv
 
 from comvestinhochatbot import ComvestinhoChatBot
 
+# =========
+#  ChatBot
+# =========
+
+@st.cache_resource
+def load_comvestinho_chatbot():
+    return ComvestinhoChatBot()
+
 # Load OPENAI_API_KEY environment variable in .env file
 dotenv.load_dotenv()
 
-# Initialize chat history
-chat_history = []
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Init and run conversational bot
+comvestinho_chatbot = load_comvestinho_chatbot()
+
+# Add application title
+st.title("Bem vindo ao ComvestinhoChatBot!")
+
+# Initialize chat history if its a new session
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
 # Display chat messages from history on app rerun
-role_map = { "user": "Usuário", "assistant": "Sistema"}
-for message in st.session_state.messages:
-    chat_history.append(f"{role_map[message['role']]}: {message['content']}")
+for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
-# Init and run conversational bot
-comvestinho = ComvestinhoChatBot(chat_history)
-
-# Init components
-st.title("Bem vindo ao ComvestinhoChatBot!")
 
 # React to user input
 if prompt := st.chat_input("Faça uma pergunta sobre o Vestibular da Unicamp 2024!"):
     # Display user message in chat message container
+    # and add user message to chat history
     st.chat_message("user").markdown(prompt)
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.chat_history.append({"role": "user", "content": prompt})
 
     # Ask ComvestinhoChatBot passing the users input
-    response = comvestinho.ask(prompt)
+    response = comvestinho_chatbot.ask(prompt, st.session_state.chat_history)
 
     # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        st.markdown(response)
-
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    # and add assistant response to chat history
+    st.chat_message("assistant").markdown(response)
+    st.session_state.chat_history.append({"role": "assistant", "content": response})
