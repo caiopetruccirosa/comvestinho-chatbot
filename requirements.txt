@@ -6,3 +6,4 @@ python-dotenv
 chromadb
 bs4
 html2text
+sqlite3>=3.35.0
