@@ -5,3 +5,4 @@ langchainhub
 python-dotenv
 chromadb
 bs4
+html2text
