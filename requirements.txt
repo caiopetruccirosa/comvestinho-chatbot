@@ -4,3 +4,4 @@ langchain
 langchainhub
 python-dotenv
 chromadb
+bs4
