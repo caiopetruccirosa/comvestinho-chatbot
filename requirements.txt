@@ -1,0 +1,6 @@
+pip install openai==0.27.8
+pip install tiktoken
+pip install langchain
+pip install langchainhub
+pip install python-dotenv
+pip install chromadb
