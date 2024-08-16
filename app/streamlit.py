@@ -10,7 +10,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 import dotenv
 
-from comvestinhochatbot import ComvestinhoChatBot
+from app.core.comvestinhochatbot import ComvestinhoChatBot
 
 # =========
 #  ChatBot
@@ -20,7 +20,7 @@ from comvestinhochatbot import ComvestinhoChatBot
 def load_comvestinho_chatbot():
     return ComvestinhoChatBot()
 
-# Load OPENAI_API_KEY environment variable in .env file
+# Load GROQ_API_KEY environment variable in .env file
 dotenv.load_dotenv()
 
 # Init and run conversational bot

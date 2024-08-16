@@ -6,8 +6,10 @@ from langchain.vectorstores import Chroma
 
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.chat_models import ChatGroq
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+import os
 
 # Constants for  prompt messages templates
 SYSTEM_MESSAGE_TEMPLATE = """Você é uma IA assistente cuja função é responder dúvidas sobre o Vestibular da Unicamp 2024 a partir da publicação da Resolução GR-031/2023, de 13/07/2023 que \"Dispõe sobre o Vestibular Unicamp 2024 para vagas no ensino de Graduação\".
@@ -28,8 +30,8 @@ class ComvestinhoChatBot():
     # Inits ComvestinhoChatBot
     def __init__(self):
         # Sets model names
-        self.chat_model_name = "gpt-3.5-turbo"
-        self.embeddings_model_name = "text-embedding-ada-002"
+        self.chat_model_name = "llama3-70b-8192"
+        self.embeddings_model_name = "sentence-transformers/multi-qa-mpnet-base-cos-v1"
 
         # Sets default values
         self.chunk_size = 1000
@@ -37,13 +39,15 @@ class ComvestinhoChatBot():
         self.temperature = 0
 
         # Creates embeddings and chat models
-        self.chat_model = ChatOpenAI(
-            model_name=self.chat_model_name, 
+        self.chat_model = ChatGroq(
+            model=self.chat_model_name,
             temperature=self.temperature,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
         )
-        self.embeddings_model = OpenAIEmbeddings(
-            model=self.embeddings_model_name, 
-            chunk_size=self.chunk_size,
+        self.embeddings_model = HuggingFaceEmbeddings(
+            model_name=self.embeddings_model_name,
         )
 
         # Creates document vectostore and retriever

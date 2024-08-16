@@ -1,9 +1,10 @@
-openai==0.27.8
-tiktoken
 langchain
+langchain-groq
+langchain_community
 langchainhub
 python-dotenv
 chromadb
 bs4
 html2text
 pysqlite3-binary
+streamlit
