@@ -7,7 +7,7 @@ from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 from langchain_groq.chat_models import ChatGroq
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
 import os
 
@@ -85,7 +85,7 @@ class ComvestinhoChatBot():
 
     # Loads html page and convert it to text
     def __load_webpage(self, page_url):
-        loader = AsyncHtmlLoader([page_url])
+        loader = AsyncHtmlLoader([page_url], verify_ssl=False)
         html2text = Html2TextTransformer()
         docs = loader.load()
         docs_transformed = html2text.transform_documents(docs)

@@ -1,6 +1,6 @@
 langchain
 langchain-groq
-langchain_community
+langchain-huggingface
 sentence-transformers
 langchainhub
 python-dotenv
