@@ -1,15 +1,14 @@
-from langchain.document_loaders import AsyncHtmlLoader
-from langchain.document_transformers import Html2TextTransformer
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-from langchain.vectorstores import Chroma
-
-from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-
 from langchain_groq.chat_models import ChatGroq
-from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
-import os
+from langchain_community.document_loaders import AsyncHtmlLoader
+from langchain_community.document_transformers import Html2TextTransformer
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from langchain_community.vectorstores import Chroma
+
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 # Constants for  prompt messages templates
 SYSTEM_MESSAGE_TEMPLATE = """Você é uma IA assistente cuja função é responder dúvidas sobre o Vestibular da Unicamp 2024 a partir da publicação da Resolução GR-031/2023, de 13/07/2023 que \"Dispõe sobre o Vestibular Unicamp 2024 para vagas no ensino de Graduação\".
