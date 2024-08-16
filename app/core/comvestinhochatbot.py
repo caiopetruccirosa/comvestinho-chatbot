@@ -6,7 +6,7 @@ from langchain.vectorstores import Chroma
 
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-from langchain.chat_models import ChatGroq
+from langchain_groq.chat_models import ChatGroq
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 import os

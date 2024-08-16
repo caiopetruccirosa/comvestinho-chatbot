@@ -1,7 +1,7 @@
 import sys
 import dotenv
 
-from app.core.comvestinhochatbot import ComvestinhoChatBot
+from core.comvestinhochatbot import ComvestinhoChatBot
 
 # Load GROQ_API_KEY environment variable in .env file
 dotenv.load_dotenv()

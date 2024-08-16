@@ -10,7 +10,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 import dotenv
 
-from app.core.comvestinhochatbot import ComvestinhoChatBot
+from core.comvestinhochatbot import ComvestinhoChatBot
 
 # =========
 #  ChatBot
