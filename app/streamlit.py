@@ -24,7 +24,11 @@ def load_comvestinho_chatbot():
 dotenv.load_dotenv()
 
 # Init and run conversational bot
-comvestinho_chatbot = load_comvestinho_chatbot()
+try:
+    comvestinho_chatbot = load_comvestinho_chatbot()
+except Exception as e:
+    st.error(f"Erro ao carregar o Comvestinho ChatBot:\n{e}")
+    st.stop()
 
 # Add application title
 st.title("Bem vindo ao ComvestinhoChatBot!")
@@ -45,10 +49,13 @@ if prompt := st.chat_input("Faça uma pergunta sobre o Vestibular da Unicamp 202
     st.chat_message("user").markdown(prompt)
     st.session_state.chat_history.append({"role": "user", "content": prompt})
 
-    # Ask ComvestinhoChatBot passing the users input
-    response = comvestinho_chatbot.ask(prompt, st.session_state.chat_history)
+    try:
+        # Ask ComvestinhoChatBot passing the users input
+        response = comvestinho_chatbot.ask(prompt, st.session_state.chat_history)
 
-    # Display assistant response in chat message container
-    # and add assistant response to chat history
-    st.chat_message("assistant").markdown(response)
-    st.session_state.chat_history.append({"role": "assistant", "content": response})
+        # Display assistant response in chat message container
+        # and add assistant response to chat history
+        st.chat_message("assistant").markdown(response)
+        st.session_state.chat_history.append({"role": "assistant", "content": response})
+    except Exception as e:
+        st.error(f"Erro de comunicação com o Comvestinho!\nErro: {e}")
