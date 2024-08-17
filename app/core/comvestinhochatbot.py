@@ -1,3 +1,5 @@
+from core.preprocessing import download_spacy_pt_model, sliding_window_split
+
 from langchain_groq.chat_models import ChatGroq
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
@@ -33,9 +35,9 @@ class ComvestinhoChatBot():
         self.embeddings_model_name = "sentence-transformers/multi-qa-mpnet-base-cos-v1"
 
         # Sets default values
-        self.chunk_size = 1000
-        self.chunk_overlap = 0
         self.temperature = 0
+        self.window_size = 7
+        self.window_overlap = 3
 
         # Creates embeddings and chat models
         self.chat_model = ChatGroq(
@@ -92,11 +94,11 @@ class ComvestinhoChatBot():
 
     # Splits documents to smaller chunks
     def __split_documents(self, docs):
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-        )
-        docs_splits = text_splitter.split_documents(docs)
+        download_spacy_pt_model()
+
+        stride = self.window_size - self.window_overlap
+        docs_splits = sliding_window_split(documents=docs, stride=stride, window_size=self.window_size)
+
         return docs_splits
 
     # Creates document vector store

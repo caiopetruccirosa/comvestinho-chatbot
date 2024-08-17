@@ -10,3 +10,4 @@ bs4
 html2text
 pysqlite3-binary
 streamlit
+spacy
